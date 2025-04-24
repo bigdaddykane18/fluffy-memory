@@ -1,0 +1,37 @@
+on:
+  workflow_call:
+    secrets:
+      access-token:
+        description: 'A token passed from the caller workflow'
+        required: false
+
+jobs:
+  pass-secret-to-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Pass the received secret to an action
+        uses: ./.github/actions/my-action
+        with:
+          token: ${{ secrets.access-token }}
+
+      - name: Additional step example
+        run: echo "This is an additional step in the workflow"
+
+  pass-secret-to-workflow:
+    uses: ./.github/workflows/my-workflow
+    secrets:
+      token: ${{ secrets.access-token }}
